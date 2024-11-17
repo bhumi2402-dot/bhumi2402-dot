@@ -1,0 +1,46 @@
+section .data
+msg1: db 'Enter first number: ',10
+msg1len: equ $-msg1
+msg2: db 'Enter second number: ',10
+msg2len: equ $-msg2
+msg3: db 'Quotient is: ',10
+msg3len: equ $-msg3
+msg4: db 'Remainder is: ',10
+msg4len: equ $-msg4
+section .bss
+var1: resb 2
+var2: resb 2
+var3: resb 2	;quotient
+var4: resb 2	;remainder
+ 
+%macro rw 4
+mov eax,%1		
+mov ebx,%2                
+mov ecx,%3		
+mov edx,%4	
+int 80h;
+%endmacro
+section .text
+global _start
+_start:
+rw 4,1,msg1,msg1len
+rw 3,0,var1,2
+rw 4,1,msg2,msg2len
+rw 3,0,var2,2
+mov ax,[var1]
+sub ax,48
+mov ah,0
+mov bl,[var2]
+sub bl,48
+div bl
+add al,48
+mov [var3],al
+add ah,48
+mov [var4],ah
+rw 4,1,msg3,msg3len
+rw 4,1,var3,2
+rw 4,1,msg4,msg4len
+rw 4,1,var4,2
+mov eax,1
+mov ebx,0
+int 80h;
