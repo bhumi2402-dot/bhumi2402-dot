@@ -1,0 +1,43 @@
+section .data
+    s1 db 'Hello, world!', 0    ; First string
+    lens1 equ $ - s1             ; Length of first string
+    s2 db 'Hello, world!', 0    ; Second string
+    lens2 equ $ - s2             ; Length of second string
+
+    msg_eq db 'Strings are equal!', 0xa
+    len_eq equ $ - msg_eq       ; Length of the 'equal' message
+
+    msg_neq db 'Strings are not equal!', 0
+    len_neq equ $ - msg_neq     ; Length of the 'not equal' message
+
+section .text
+    global _start                ; Entry point for GCC or other linker
+_start:
+    mov esi, s1                  ; Load address of s1 into ESI
+    mov edi, s2                  ; Load address of s2 into EDI
+    mov ecx, lens2               ; Load length of second string into ECX
+    cld                          ; Clear direction flag for string operations
+
+    repe cmpsb                   ; Compare bytes in s1 and s2 (ECX times)
+    je equal                     ; If zero flag is set (strings are equal), jump to 'equal'
+
+    ; If strings are not equal, print 'Strings are not equal!'
+    mov eax, 4                   ; Syscall number for sys_write
+    mov ebx, 1                   ; File descriptor (stdout)
+    mov ecx, msg_neq             ; Message to print
+    mov edx, len_neq             ; Length of the message
+    int 80h                      ; Call kernel
+    jmp exit                     ; Jump to exit
+
+equal:
+    ; If strings are equal, print 'Strings are equal!'
+    mov eax, 4                   ; Syscall number for sys_write
+    mov ebx, 1                   ; File descriptor (stdout)
+    mov ecx, msg_eq              ; Message to print
+    mov edx, len_eq              ; Length of the message
+    int 80h                      ; Call kernel
+
+exit:
+    mov eax, 1                   ; Syscall number for sys_exit
+    mov ebx, 0                   ; Exit status 0
+    int 80h                      ; Call kernel
