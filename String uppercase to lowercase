@@ -1,0 +1,33 @@
+section .data
+    s1 db 'BHUMIKASHAH', 0    ; Uppercase string to be converted
+    len equ $ - s1             ; Calculate the length of the string (including null terminator)
+
+section .bss
+    s2 resb 20                 ; Reserve space for the lowercase string (20 bytes)
+
+section .text
+    global _start
+
+_start:
+    ; Initialize ECX with the length of the string
+    mov ecx, len              ; Load the length of s1 into ecx
+    mov esi, s1               ; Point ESI to the start of s1
+    mov edi, s2               ; Point EDI to the start of s2
+
+convert_to_lower:
+    lodsb                      ; Load byte from s1 (pointed by ESI) into AL, and increment ESI
+    or al, 20h                 ; Convert to lowercase by setting the 6th bit (ASCII trick)
+    stosb                      ; Store the byte in s2 (pointed by EDI), and increment EDI
+    loop convert_to_lower      ; Repeat until ECX is 0 (i.e., we've processed the entire string)
+
+    ; Print the converted string (s2)
+    mov eax, 4                 ; Syscall number for sys_write
+    mov ebx, 1                 ; File descriptor (stdout)
+    mov ecx, s2                ; Pointer to the converted string (s2)
+    mov edx, len               ; Length of the string to be printed (same as the original length)
+    int 0x80                   ; Make the syscall
+
+    ; Exit the program
+    mov eax, 1                 ; Syscall number for sys_exit
+    xor ebx, ebx               ; Exit status 0
+    int 0x80                   ; Make the syscall
